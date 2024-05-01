@@ -44,6 +44,27 @@
       }
     },
     {
+      "name": "windows-x64-swift",
+      "displayName": "Windows x64 Swift",
+      "description": "Build for Windows x64 with clang-cl",
+      "inherits": ["template"],
+      "binaryDir": "${sourceDir}/build_x64_clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Ninja",
+      "warnings": {"dev": true, "deprecated": true},
+      "cacheVariables": {
+        "CMAKE_SYSTEM_VERSION": "10.0.20348.0",
+        "CMAKE_MT": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.20348.0\\x64\\mt.exe",
+        "CMAKE_C_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\clang-cl.exe",
+        "CMAKE_Swift_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\swiftc.exe"
+      }
+    },
+    {
       "name": "windows-x64",
       "displayName": "Windows x64",
       "description": "Build for Windows x64",
@@ -138,6 +159,13 @@
       "configurePreset": "macos-ci",
       "displayName": "macOS Universal CI",
       "description": "macOS CI build for Universal architectures",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-x64-swift",
+      "configurePreset": "windows-x64-swift",
+      "displayName": "Windows Ninja with Swift",
+      "description": "Windows build for Ninja with Swift support",
       "configuration": "RelWithDebInfo"
     },
     {

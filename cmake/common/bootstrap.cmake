@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.26)
+cmake_minimum_required(VERSION 3.16...3.29)
 
 include_guard(GLOBAL)
 
@@ -25,6 +25,10 @@ endif()
 # Disable export function calls to populate package registry by default
 if(POLICY CMP0090)
   cmake_policy(SET CMP0090 NEW)
+endif()
+
+if(POLICY CMP0159)
+  cmake_policy(SET CMP0159 NEW)
 endif()
 
 # Prohibit in-source builds

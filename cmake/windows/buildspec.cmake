@@ -6,7 +6,13 @@ include(buildspec_common)
 
 # _check_dependencies_windows: Set up Windows slice for _check_dependencies
 function(_check_dependencies_windows)
-  set(arch ${CMAKE_GENERATOR_PLATFORM})
+  # if clang-cl is used, x64 is the default architecture
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(arch x64)
+  else()
+    set(arch ${CMAKE_GENERATOR_PLATFORM})
+  endif()
+
   set(platform windows-${arch})
 
   set(dependencies_dir "${CMAKE_CURRENT_SOURCE_DIR}/.deps")
