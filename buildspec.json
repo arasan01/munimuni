@@ -33,15 +33,15 @@
     },
     "platformConfig": {
         "macos": {
-            "bundleId": "com.example.obs-plugintemplate"
+            "bundleId": "com.arasan01.munimuni"
         }
     },
-    "name": "obs-plugintemplate",
-    "displayName": "OBS Plugin Template",
+    "name": "munimuni",
+    "displayName": "MUNIMUNI Plugin",
     "version": "1.0.0",
-    "author": "Your Name Here",
-    "website": "https://example.com",
-    "email": "me@example.com",
+    "author": "arasan01.",
+    "website": "https://arasan01.com",
+    "email": "munimuni@arasan01.com",
     "uuids": {
         "windowsApp": "00000000-0000-0000-0000-000000000000"
     }

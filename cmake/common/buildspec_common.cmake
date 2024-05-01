@@ -93,6 +93,7 @@ function(_setup_obs_studio)
       -DOBS_VERSION_OVERRIDE:STRING=${_obs_version} "-DCMAKE_PREFIX_PATH='${CMAKE_PREFIX_PATH}'" ${_is_fresh}
       ${_cmake_extra}
     RESULT_VARIABLE _process_result COMMAND_ERROR_IS_FATAL ANY
+    OUTPUT_QUIET
     )
   message(STATUS "Configure ${label} (${arch}) - done")
 
@@ -101,6 +102,7 @@ function(_setup_obs_studio)
     COMMAND "${CMAKE_COMMAND}" --build ${_cmake_build_type} --target obs-frontend-api --config Debug --parallel
     WORKING_DIRECTORY "${dependencies_dir}/${_obs_destination}"
     RESULT_VARIABLE _process_result COMMAND_ERROR_IS_FATAL ANY
+    OUTPUT_QUIET
     )
   message(STATUS "Build ${label} (${arch}) - done")
 
