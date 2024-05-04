@@ -16,24 +16,22 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
+#include <obs-module.h>
 #include <plugin-support.h>
+#include "munimuni/munimuni-swift.h"
 
-const char *PLUGIN_NAME = "@CMAKE_PROJECT_NAME@";
-const char *PLUGIN_VERSION = "@CMAKE_PROJECT_VERSION@";
+OBS_DECLARE_MODULE()
+OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
-void obs_log(int log_level, const char *format, ...)
+bool obs_module_load(void)
 {
-	size_t length = 4 + strlen(PLUGIN_NAME) + strlen(format);
+	munimuni::hello();
+	obs_log(LOG_INFO, "update plugin loaded successfully (version %s)",
+		PLUGIN_VERSION);
+	return true;
+}
 
-	char *template = malloc(length + 1);
-
-	snprintf(template, length, "[%s] %s", PLUGIN_NAME, format);
-
-	va_list(args);
-
-	va_start(args, format);
-	blogva(log_level, template, args);
-	va_end(args);
-
-	free(template);
+void obs_module_unload(void)
+{
+	obs_log(LOG_INFO, "plugin unloaded");
 }

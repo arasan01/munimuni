@@ -2,7 +2,18 @@ cmake_minimum_required(VERSION 3.16...3.29)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(${_name} VERSION ${_version})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project(${_name}
+  VERSION ${_version}
+  LANGUAGES C CXX Swift
+)
+
+# Workaround for .deps\include/media-io/../util/util_uint64.h(29,9):
+# error: use of undeclared identifier '_udiv128
+add_compile_options(
+  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fmsc-version=1919>
+)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
@@ -10,6 +21,9 @@ option(ENABLE_QT "Use Qt functionality" OFF)
 include(compilerconfig)
 include(defaults)
 include(helpers)
+include(AddSwift)
+
+set(PROJECT_BRIDGE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
@@ -34,6 +48,22 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.c)
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES Swift_MODULE_NAME "${CMAKE_PROJECT_NAME}")
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+  "$<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>")
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE "${PROJECT_BRIDGE_INCLUDE_DIR}")
+target_compile_options(${CMAKE_PROJECT_NAME}
+  PRIVATE $<$<COMPILE_LANGUAGE:Swift>:-index-store-path>
+  PRIVATE $<$<COMPILE_LANGUAGE:Swift>:${CMAKE_BINARY_DIR}/IndexStore/index>
+)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:Swift>:-Xcc> $<$<COMPILE_LANGUAGE:Swift>:-std=c++20>)
+_swift_generate_cxx_header(${CMAKE_PROJECT_NAME}
+  ${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}-swift.h
+  SEARCH_PATHS "${PROJECT_BRIDGE_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.deps/include")
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/hello.swift)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
+
+message("target compile options: ${CMAKE_PROJECT_NAME}: ${TARGET_COMPILE_OPTIONS}")

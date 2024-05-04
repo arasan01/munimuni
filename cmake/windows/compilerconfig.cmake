@@ -31,25 +31,40 @@ if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 add_compile_options(
-  /W3
-  /utf-8
+  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/W3>
+  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/utf-8>
   "$<$<COMPILE_LANG_AND_ID:C,MSVC>:/MP>"
   "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/MP>"
   "$<$<COMPILE_LANG_AND_ID:C,Clang>:${_obs_clang_c_options}>"
   "$<$<COMPILE_LANG_AND_ID:CXX,Clang>:${_obs_clang_cxx_options}>"
-  $<$<NOT:$<CONFIG:Debug>>:/Gy>)
+  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/Gy>)
 
-add_compile_definitions(UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS $<$<CONFIG:DEBUG>:DEBUG>
-                        $<$<CONFIG:DEBUG>:_DEBUG>)
+set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DUNICODE -Xcc -D_UNICODE -Xcc -D_CRT_SECURE_NO_WARNINGS -Xcc -D_CRT_NONSTDC_NO_WARNINGS")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DDEBUG -Xcc -D_DEBUG")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG -D_DEBUG")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG -D_DEBUG")
+endif()
+
+message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("CMAKE_Swift_FLAGS: ${CMAKE_Swift_FLAGS}")
 
 # cmake-format: off
-add_link_options($<$<NOT:$<CONFIG:Debug>>:/OPT:REF>
-                 $<$<NOT:$<CONFIG:Debug>>:/OPT:ICF>
-                 $<$<NOT:$<CONFIG:Debug>>:/INCREMENTAL:NO>
-                 /DEBUG
-                 /Brepro)
+add_link_options(
+  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:REF>
+  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:ICF>
+  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/INCREMENTAL:NO>
+  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/DEBUG>
+  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/Brepro>
+)
 # cmake-format: on
 
 if(CMAKE_COMPILE_WARNING_AS_ERROR)
-  add_link_options(/WX)
+  add_link_options($<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/WX>)
 endif()
