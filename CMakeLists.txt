@@ -62,6 +62,7 @@ _swift_generate_cxx_header(${CMAKE_PROJECT_NAME}
   SEARCH_PATHS "${PROJECT_BRIDGE_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.deps/include")
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/swift-log-hepler.cpp)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/hello.swift)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
