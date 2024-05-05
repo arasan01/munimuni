@@ -62,7 +62,9 @@
         "CMAKE_C_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\clang-cl.exe",
         "CMAKE_CXX_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\clang-cl.exe",
         "CMAKE_Swift_COMPILER": "C:\\Users\\arasa\\AppData\\Local\\Programs\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\swiftc.exe",
-        "CMAKE_INSTALL_PREFIX": "C:\\Program Files\\obs-studio"
+        "CMAKE_INSTALL_PREFIX": "C:\\Program Files\\obs-studio",
+        "ENABLE_FRONTEND_API": "ON",
+        "ENABLE_QT": "ON"
       }
     },
     {
