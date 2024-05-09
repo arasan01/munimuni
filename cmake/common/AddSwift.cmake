@@ -60,7 +60,7 @@ function(_swift_generate_cxx_header target header)
       ${SDK_FLAGS}
       -module-name "${ARG_MODULE_NAME}"
       -cxx-interoperability-mode=default
-      -Xcc -std=c++20
+      -swift-version 6
       -emit-clang-header-path ${header_path}
     COMMENT
       "Generating '${header_path}'"

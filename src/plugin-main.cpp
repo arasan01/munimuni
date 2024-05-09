@@ -22,10 +22,15 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
+MODULE_EXPORT const char *obs_module_description(void)
+{
+	return "Swift Color Source Plugin for OBS Studio";
+}
 
 bool obs_module_load(void)
 {
-	munimuni::hello();
+	munimuni::ObjectManager::Singleton().load();
+	munimuni::ObjectManager::Singleton().sourceRegister();
 	obs_log(LOG_INFO, "update plugin loaded successfully (version %s)",
 		PLUGIN_VERSION);
 	return true;
@@ -33,5 +38,6 @@ bool obs_module_load(void)
 
 void obs_module_unload(void)
 {
+	munimuni::ObjectManager::Singleton().unload();
 	obs_log(LOG_INFO, "plugin unloaded");
 }

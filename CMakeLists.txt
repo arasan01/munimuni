@@ -24,6 +24,7 @@ include(helpers)
 include(AddSwift)
 
 set(PROJECT_BRIDGE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories(${PROJECT_BRIDGE_INCLUDE_DIR})
 
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
@@ -54,7 +55,6 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
   $<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>)
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
   $<$<COMPILE_LANGUAGE:Swift>:-swift-version 6>)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE "${PROJECT_BRIDGE_INCLUDE_DIR}")
 target_compile_options(${CMAKE_PROJECT_NAME}
   PRIVATE $<$<COMPILE_LANGUAGE:Swift>:-index-store-path ${CMAKE_BINARY_DIR}/IndexStore/index>
 )
@@ -63,10 +63,14 @@ _swift_generate_cxx_header(${CMAKE_PROJECT_NAME}
   ${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}-swift.h
   SEARCH_PATHS "${PROJECT_BRIDGE_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.deps/include")
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp)
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/swift-log-hepler.cpp)
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/hello.swift)
+target_sources(
+  ${CMAKE_PROJECT_NAME}
+  PRIVATE # cmake-format: sortable
+    src/plugin-main.cpp
+    src/swift-hepler.cpp
+    src/ColorSources.swift
+    src/BridgeHelper.swift
+    src/Extensions/OBSSourceInfo+Extension.swift
+)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
-
-message("target compile options: ${CMAKE_PROJECT_NAME}: ${TARGET_COMPILE_OPTIONS}")
