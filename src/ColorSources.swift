@@ -75,18 +75,14 @@ public final class ColorSourcePresets {
   @Sendable internal static func update() -> UpdateClosure {
     return { source, settings in
       guard let source else { return }
+      var colorSource = withUnsafeBound(to: ColorSource.self, ptr: source) { $0 }
       let color = UInt32(obs_data_get_int(settings, "color"))
-      var colorVal: vec4 = .init()
-      var colorValSRGB: vec4 = .init()
-      vec4_from_rgba(&colorVal, color)
-      vec4_from_rgba_srgb(&colorValSRGB, color)
-      let width = UInt32(obs_data_get_int(settings, "width"))
-      let height = UInt32(obs_data_get_int(settings, "height"))
-      ObjectManager.shared.withUnsafeSource(ColorSource.self, ptr: source) { source in
-        source.color = colorVal
-        source.colorSRGB = colorValSRGB
-        source.width = width
-        source.height = height
+      vec4_from_rgba(&colorSource.color, color)
+      vec4_from_rgba_srgb(&colorSource.colorSRGB, color)
+      colorSource.width = UInt32(obs_data_get_int(settings, "width"))
+      colorSource.height = UInt32(obs_data_get_int(settings, "height"))
+      withUnsafeBound(to: ColorSource.self, ptr: source) {
+        $0 = colorSource
       }
     }
   }
@@ -110,8 +106,7 @@ public final class ColorSourcePresets {
 
     return { source, _ in
       guard let source else { return }
-      let colorSource = ObjectManager.shared
-        .withUnsafeSource(ColorSource.self, ptr: source) { $0 }
+      let colorSource = withUnsafeBound(to: ColorSource.self, ptr: source) { $0 }
       let isLinearSRGB = gs_get_linear_srgb() || (colorSource.color.w < 1.0)
       let previous = gs_framebuffer_srgb_enabled()
       gs_enable_framebuffer_srgb(isLinearSRGB)
@@ -121,7 +116,7 @@ public final class ColorSourcePresets {
         : \ColorSource.color
       var color = colorSource[keyPath: colorKeyPath]
       helper(context: colorSource, colorVal: &color)
-      ObjectManager.shared.withUnsafeSource(ColorSource.self, ptr: source) { source in
+      withUnsafeBound(to: ColorSource.self, ptr: source) { source in
         source[keyPath: colorKeyPath] = color
       }
       gs_enable_framebuffer_srgb(previous)
@@ -159,15 +154,13 @@ public final class ColorSourcePresets {
   internal static func getWidth() -> GetSizeClosure {
     return { source in
       guard let source else { return 0 }
-      let colorSource = source.assumingMemoryBound(to: ColorSource.self).pointee
-      return colorSource.width
+      return withUnsafeBound(to: ColorSource.self, ptr: source) { $0.width }
     }
   }
   internal static func getHeight() -> GetSizeClosure {
     return { source in
       guard let source else { return 0 }
-      let colorSource = source.assumingMemoryBound(to: ColorSource.self).pointee
-      return colorSource.height
+      return withUnsafeBound(to: ColorSource.self, ptr: source) { $0.height }
     }
   }
 

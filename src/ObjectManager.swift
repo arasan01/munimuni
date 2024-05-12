@@ -34,20 +34,11 @@ public final class ObjectManager: @unchecked Sendable {
     }
   }
 
-  internal func withUnsafeSource<T, V>(_ type: T.Type = T.self, ptr: UnsafeMutableRawPointer, _ mutate: (inout T) -> V) -> V {
-    let typedPtr = ptr.assumingMemoryBound(to: type)
-    return lock.withLock {
-      var source = typedPtr.pointee
-      let v = mutate(&source)
-      typedPtr.pointee = source
-      return v
-    }
-  }
-
   internal func destroySource(_ ptr: UnsafeMutableRawPointer) {
     lock.withLock {
-      stored.remove(ptr)
-      ptr.deallocate()
+      if let exists = stored.remove(ptr) {
+        exists.deallocate()
+      }
     }
   }
 
@@ -55,3 +46,13 @@ public final class ObjectManager: @unchecked Sendable {
     colorSourcePresets?.register()
   }
 }
+
+@discardableResult
+internal func withUnsafeBound<T, V>(
+  to type: T.Type = T.self,
+  ptr: UnsafeMutableRawPointer,
+  _ mutate: (inout T) -> V
+) -> V {
+    let boundPtr = ptr.assumingMemoryBound(to: type)
+    return mutate(&boundPtr.pointee)
+  }
