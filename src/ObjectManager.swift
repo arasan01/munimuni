@@ -30,13 +30,11 @@ public final class ObjectManager: @unchecked Sendable {
       allocatePtr.initialize(to: source)
       let rawPtr = UnsafeMutableRawPointer(allocatePtr)
       stored.insert(rawPtr)
-      printOBS(.INFO, "access ptr: \(String(describing: rawPtr))")
       return rawPtr
     }
   }
 
   internal func withUnsafeSource<T, V>(_ type: T.Type = T.self, ptr: UnsafeMutableRawPointer, _ mutate: (inout T) -> V) -> V {
-    printOBS(.INFO, "access ptr: \(String(describing: ptr))")
     let typedPtr = ptr.assumingMemoryBound(to: type)
     return lock.withLock {
       var source = typedPtr.pointee
@@ -47,7 +45,6 @@ public final class ObjectManager: @unchecked Sendable {
   }
 
   internal func destroySource(_ ptr: UnsafeMutableRawPointer) {
-    printOBS(.INFO, "access ptr: \(String(describing: ptr))")
     lock.withLock {
       stored.remove(ptr)
       ptr.deallocate()
