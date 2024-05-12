@@ -1,4 +1,17 @@
-# OBS Plugin Template
+# OBS Plugin with Swift
+
+Currently
+
+- with Swift
+- on Windows
+- Cxx Interop
+- re-implement cxx source by Swift
+
+## Focus
+
+Preset: windows-x64-swift
+
+--- This and the following are as is in Template ---.
 
 ## Introduction
 
