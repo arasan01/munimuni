@@ -23,5 +23,5 @@ internal enum LogLevel {
 }
 
 func printOBS(_ level: LogLevel = .INFO, _ text: String) {
-  swift_log_obs_print(Int32(level.obsLogLevel), std.string(text))
+  swift_log_obs_print(Int32(level.obsLogLevel), std.string(text.trimmingCharacters(in: .whitespacesAndNewlines)))
 }

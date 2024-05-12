@@ -2,13 +2,18 @@ import Foundation
 import CxxStdlib
 import OBSModule
 
-public final class ColorSource {
+public typealias OBSDataPtr = OpaquePointer
+public typealias OBSSourcePtr = OpaquePointer
+public typealias GSEffectPtr = OpaquePointer
+public typealias ColorSourcePtr = UnsafeMutableRawPointer
+
+public struct ColorSource {
   internal init(
     color: vec4 = .init(),
     colorSRGB: vec4 = .init(),
     width: UInt32 = 0,
     height: UInt32 = 0,
-    src: OpaquePointer? = nil
+    src: OBSSourcePtr? = nil
   ) {
     self.color = color
     self.colorSRGB = colorSRGB
@@ -22,10 +27,8 @@ public final class ColorSource {
   public var width: UInt32
   public var height: UInt32
 
-  public var src: OpaquePointer? // obs_source_t
+  public var src: OBSSourcePtr?
 }
-
-
 
 public final class ColorSourcePresets {
   var sourceInfo: obs_source_info
@@ -34,12 +37,10 @@ public final class ColorSourcePresets {
   public init() {
     sourceInfo = obs_source_info()
     sourceInfo.id = identifier.obsString
+    sourceInfo.version = 1
     sourceInfo.type = OBS_SOURCE_TYPE_INPUT
     sourceInfo.output_flags = UInt32(OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_SRGB)
     sourceInfo.icon_type = OBS_ICON_TYPE_COLOR
-    sourceInfo.create = { settings, source in
-      return nil
-    }
     sourceInfo.get_name = Self.getName()
     sourceInfo.get_properties = Self.getProperties()
     sourceInfo.get_defaults = Self.getDefaults()
@@ -51,15 +52,10 @@ public final class ColorSourcePresets {
     sourceInfo.video_render = Self.videoRender()
   }
 
-  typealias OBSDataPtr = OpaquePointer
-  typealias OBSSourcePtr = OpaquePointer
-  typealias GSEffectPtr = OpaquePointer
-  typealias ColorSourcePtr = UnsafeMutableRawPointer
-
   typealias CreateClosure = @convention(c) (OBSDataPtr?, OBSSourcePtr?) -> UnsafeMutableRawPointer?
   internal static func create() -> CreateClosure {
     return { settings, source in
-      let colorSource = ColorSource(src: source)
+      var colorSource = ColorSource(src: source)
       let color = UInt32(obs_data_get_int(settings, "color"))
       vec4_from_rgba(&colorSource.color, color)
       vec4_from_rgba_srgb(&colorSource.colorSRGB, color)
@@ -72,20 +68,26 @@ public final class ColorSourcePresets {
   internal static func destroy() -> DestroyClosure {
     return { source in
       guard let source else { return }
-      let colorSource = source.assumingMemoryBound(to: ColorSource.self).pointee
-      ObjectManager.shared.destroySource(colorSource)
+      ObjectManager.shared.destroySource(source)
     }
   }
   typealias UpdateClosure = @convention(c) (ColorSourcePtr?, OBSDataPtr?) -> Void
   @Sendable internal static func update() -> UpdateClosure {
     return { source, settings in
       guard let source else { return }
-      let colorSource = source.assumingMemoryBound(to: ColorSource.self).pointee
       let color = UInt32(obs_data_get_int(settings, "color"))
-      vec4_from_rgba(&colorSource.color, color)
-      vec4_from_rgba_srgb(&colorSource.colorSRGB, color)
-      colorSource.width = UInt32(obs_data_get_int(settings, "width"))
-      colorSource.height = UInt32(obs_data_get_int(settings, "height"))
+      var colorVal: vec4 = .init()
+      var colorValSRGB: vec4 = .init()
+      vec4_from_rgba(&colorVal, color)
+      vec4_from_rgba_srgb(&colorValSRGB, color)
+      let width = UInt32(obs_data_get_int(settings, "width"))
+      let height = UInt32(obs_data_get_int(settings, "height"))
+      ObjectManager.shared.withUnsafeSource(ColorSource.self, ptr: source) { source in
+        source.color = colorVal
+        source.colorSRGB = colorValSRGB
+        source.width = width
+        source.height = height
+      }
     }
   }
   typealias VideoRenderClosure = @convention(c) (ColorSourcePtr?, GSEffectPtr?) -> Void
@@ -100,7 +102,7 @@ public final class ColorSourcePresets {
       gs_technique_begin(tech)
       gs_technique_begin_pass(tech, 0)
 
-      gs_draw_sprite(nil, 0, context.width, context.height)
+      gs_draw_sprite(.init(bitPattern: 0), 0, context.width, context.height)
 
       gs_technique_end_pass(tech)
       gs_technique_end(tech)
@@ -108,15 +110,19 @@ public final class ColorSourcePresets {
 
     return { source, _ in
       guard let source else { return }
-
-      let colorSource = source.assumingMemoryBound(to: ColorSource.self).pointee
+      let colorSource = ObjectManager.shared
+        .withUnsafeSource(ColorSource.self, ptr: source) { $0 }
       let isLinearSRGB = gs_get_linear_srgb() || (colorSource.color.w < 1.0)
       let previous = gs_framebuffer_srgb_enabled()
       gs_enable_framebuffer_srgb(isLinearSRGB)
-      if isLinearSRGB {
-        helper(context: colorSource, colorVal: &colorSource.colorSRGB)
-      } else {
-        helper(context: colorSource, colorVal: &colorSource.color)
+
+      let colorKeyPath = isLinearSRGB
+        ? \ColorSource.colorSRGB
+        : \ColorSource.color
+      var color = colorSource[keyPath: colorKeyPath]
+      helper(context: colorSource, colorVal: &color)
+      ObjectManager.shared.withUnsafeSource(ColorSource.self, ptr: source) { source in
+        source[keyPath: colorKeyPath] = color
       }
       gs_enable_framebuffer_srgb(previous)
     }
