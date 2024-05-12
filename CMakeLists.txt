@@ -68,9 +68,10 @@ target_sources(
   PRIVATE # cmake-format: sortable
     src/plugin-main.cpp
     src/swift-hepler.cpp
+    src/ObjectManager.swift
     src/ColorSources.swift
     src/BridgeHelper.swift
-    src/Extensions/OBSSourceInfo+Extension.swift
+    src/Extensions/String+Extension.swift
 )
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})

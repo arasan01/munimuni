@@ -29,8 +29,8 @@ MODULE_EXPORT const char *obs_module_description(void)
 
 bool obs_module_load(void)
 {
-	munimuni::ObjectManager::Singleton().load();
-	munimuni::ObjectManager::Singleton().sourceRegister();
+	munimuni::ObjectManager::singleton().load();
+	munimuni::ObjectManager::singleton().sourcePresetsRegister();
 	obs_log(LOG_INFO, "update plugin loaded successfully (version %s)",
 		PLUGIN_VERSION);
 	return true;
@@ -38,6 +38,6 @@ bool obs_module_load(void)
 
 void obs_module_unload(void)
 {
-	munimuni::ObjectManager::Singleton().unload();
+	munimuni::ObjectManager::singleton().unload();
 	obs_log(LOG_INFO, "plugin unloaded");
 }
