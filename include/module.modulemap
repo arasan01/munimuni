@@ -1,0 +1,3 @@
+module OBSModule {
+  header "swift-obs.h"
+}
