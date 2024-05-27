@@ -42,6 +42,12 @@ public final class ObjectManager: @unchecked Sendable {
     }
   }
 
+  internal func isExists(_ ptr: UnsafeMutableRawPointer) -> Bool {
+    return lock.withLock {
+      return stored.contains(ptr)
+    }
+  }
+
   public func sourcePresetsRegister() {
     colorSourcePresets?.register()
   }
@@ -53,6 +59,9 @@ internal func withUnsafeBound<T, V>(
   ptr: UnsafeMutableRawPointer,
   _ mutate: (inout T) -> V
 ) -> V {
-    let boundPtr = ptr.assumingMemoryBound(to: type)
-    return mutate(&boundPtr.pointee)
-  }
+  #if DEBUG
+  precondition(ObjectManager.shared.isExists(ptr), "withUnsafeBound: pointer is not managed by ObjectManager")
+  #endif
+  let boundPtr = ptr.assumingMemoryBound(to: type)
+  return mutate(&boundPtr.pointee)
+}

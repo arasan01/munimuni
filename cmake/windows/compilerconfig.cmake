@@ -39,6 +39,20 @@ add_compile_options(
   "$<$<COMPILE_LANG_AND_ID:CXX,Clang>:${_obs_clang_cxx_options}>"
   $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/Gy>)
 
+
+add_link_options(
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANGUAGE:Swift>>:-Xlinker>
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANGUAGE:Swift>>:-debug>
+)
+# for WinDbg
+add_compile_options(
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANGUAGE:Swift>>:-debug-info-format=codeview>
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANG_AND_ID:C,Clang>>:-g>
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANG_AND_ID:C,Clang>>:-gcodeview>
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANG_AND_ID:CXX,Clang>>:-g>
+  $<$<AND:$<NOT:$<CONFIG:Release>>,$<COMPILE_LANG_AND_ID:CXX,Clang>>:-gcodeview>
+)
+
 set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DUNICODE -Xcc -D_UNICODE -Xcc -D_CRT_SECURE_NO_WARNINGS -Xcc -D_CRT_NONSTDC_NO_WARNINGS")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DDEBUG -Xcc -D_DEBUG")
@@ -57,10 +71,9 @@ message("CMAKE_Swift_FLAGS: ${CMAKE_Swift_FLAGS}")
 
 # cmake-format: off
 add_link_options(
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:REF>
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:ICF>
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/INCREMENTAL:NO>
-  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/DEBUG>
+  $<$<AND:$<CONFIG:Release>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:REF>
+  $<$<AND:$<CONFIG:Release>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:ICF>
+  $<$<AND:$<CONFIG:Release>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/INCREMENTAL:NO>
   $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/Brepro>
 )
 # cmake-format: on
