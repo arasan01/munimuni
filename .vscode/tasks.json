@@ -1,0 +1,46 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "CMake: ビルド",
+			"command": "build",
+			"targets": [
+				"all"
+			],
+			"preset": "${command:cmake.activeBuildPresetName}",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+		},
+			"problemMatcher": [],
+			"detail": "CMake ビルド タスク"
+		},
+		{
+			"type": "cmake",
+			"label": "CMake: クリーンしてリビルド",
+			"command": "cleanRebuild",
+			"targets": [
+				"all"
+			],
+			"preset": "${command:cmake.activeBuildPresetName}",
+			"group": {
+				"kind": "build",
+				"isDefault": false
+		},
+			"problemMatcher": [],
+			"detail": "CMake クリーンリビルド"
+		},
+		{
+			"type": "cmake",
+			"label": "CMake: インストール",
+			"command": "install",
+			"preset": "${command:cmake.activeBuildPresetName}",
+			"problemMatcher": [],
+			"detail": "CMake インストール",
+			"dependsOn": [
+				"CMake: ビルド"
+			]
+		}
+	]
+}

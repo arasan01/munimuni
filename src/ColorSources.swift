@@ -166,8 +166,7 @@ public final class ColorSourcePresets {
 
   func register() {
     withUnsafePointer(to: &sourceInfo) {
-      obs_register_source_s($0,
-      MemoryLayout<obs_source_info>.size)
+      obs_register_source_s($0, MemoryLayout<obs_source_info>.size)
     }
   }
 }
