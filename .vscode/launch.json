@@ -12,13 +12,5 @@
       "args": [],
       "cwd": "S:/src/obs-studio/build_x64/rundir/RelWithDebInfo/bin/64bit/"
     },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug x64",
-      "program": "S:/src/obs-studio/build_x64/rundir/Debug/bin/64bit/obs64.exe",
-      "args": [],
-      "cwd": "S:/src/obs-studio/build_x64/rundir/Debug/bin/64bit/"
-    },
   ]
 }
