@@ -33,7 +33,7 @@ function(set_target_properties_plugin target)
 
   install(
     FILES "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pdb"
-    CONFIGURATIONS RelWithDebInfo Debug Release
+    CONFIGURATIONS Debug
     DESTINATION obs-plugins/64bit
     OPTIONAL)
 

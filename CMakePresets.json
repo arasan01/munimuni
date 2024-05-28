@@ -63,9 +63,28 @@
         "CMAKE_CXX_COMPILER": "C:\\Toolchains\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\clang-cl.exe",
         "CMAKE_LINKER": "C:\\Toolchains\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\lld-link.exe",
         "CMAKE_Swift_COMPILER": "C:\\Toolchains\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\swiftc.exe",
-        "CMAKE_INSTALL_PREFIX": "S:\\src\\obs-studio\\build_x64\\rundir\\RelWithDebInfo",
         "ENABLE_FRONTEND_API": "ON",
         "ENABLE_QT": "ON"
+      }
+    },
+    {
+      "name": "windows-x64-swift-Debug",
+      "inherits": ["windows-x64-swift"],
+      "displayName": "Windows x64 Swift Debug",
+      "description": "Build for Windows x64 with clang-cl in Debug mode",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "S:\\src\\obs-studio\\build_x64\\rundir\\Debug",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-x64-swift-RelWithDebInfo",
+      "inherits": ["windows-x64-swift"],
+      "displayName": "Windows x64 Swift RelWithDebInfo",
+      "description": "Build for Windows x64 with clang-cl in RelWithDebInfo mode",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "S:\\src\\obs-studio\\build_x64\\rundir\\RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
@@ -166,11 +185,18 @@
       "configuration": "RelWithDebInfo"
     },
     {
-      "name": "windows-x64-swift",
-      "configurePreset": "windows-x64-swift",
-      "displayName": "Windows Ninja with Swift",
+      "name": "windows-x64-swift-RelWithDebInfo",
+      "configurePreset": "windows-x64-swift-RelWithDebInfo",
+      "displayName": "RelWithDebInfo",
       "description": "Windows build for Ninja with Swift support",
       "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-x64-swift-Debug",
+      "configurePreset": "windows-x64-swift-Debug",
+      "displayName": "Debug",
+      "description": "Windows build for Ninja with Swift support",
+      "configuration": "Debug"
     },
     {
       "name": "windows-x64",
