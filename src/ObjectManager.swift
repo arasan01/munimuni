@@ -6,7 +6,6 @@ public final class ObjectManager: @unchecked Sendable {
     return shared
   }
 
-  public var colorSourcePresets: ColorSourcePresets?
   private var stored: Set<UnsafeMutableRawPointer> = []
   private var lock = NSRecursiveLock()
 
@@ -17,11 +16,9 @@ public final class ObjectManager: @unchecked Sendable {
   }
 
   public func load() {
-    colorSourcePresets = ColorSourcePresets()
   }
 
   public func unload() {
-    colorSourcePresets = nil
   }
 
   internal func createSource<T>(_ source: T) -> UnsafeMutableRawPointer {
@@ -49,7 +46,7 @@ public final class ObjectManager: @unchecked Sendable {
   }
 
   public func sourcePresetsRegister() {
-    colorSourcePresets?.register()
+    ColorSourcePresets.register()
   }
 }
 
