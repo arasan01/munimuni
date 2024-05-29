@@ -1,18 +1,39 @@
 import Foundation
 
+final class AnyBox: @unchecked Sendable, Hashable {
+    static func == (lhs: AnyBox, rhs: AnyBox) -> Bool {
+      return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    }
+
+  fileprivate var box: Any?
+
+  init(_ value: Any) {
+    box = value
+  }
+
+  func get<T>() -> T? {
+    return box as? T
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(ObjectIdentifier(self))
+  }
+}
+
+
 public final class ObjectManager: @unchecked Sendable {
   public static let shared = ObjectManager()
   public static func singleton() -> ObjectManager {
     return shared
   }
 
-  private var stored: Set<UnsafeMutableRawPointer> = []
+  private var stored: Set<AnyBox> = []
   private var lock = NSRecursiveLock()
 
   private init() {}
 
   deinit {
-    stored.forEach { $0.deallocate() }
+    stored.removeAll()
   }
 
   public func load() {
@@ -23,25 +44,23 @@ public final class ObjectManager: @unchecked Sendable {
 
   internal func createSource<T>(_ source: T) -> UnsafeMutableRawPointer {
     return lock.withLock {
-      let allocatePtr = UnsafeMutablePointer<T>.allocate(capacity: 1)
-      allocatePtr.initialize(to: source)
-      let rawPtr = UnsafeMutableRawPointer(allocatePtr)
-      stored.insert(rawPtr)
-      return rawPtr
+      let anyBox = AnyBox(source)
+      stored.insert(anyBox)
+      return UnsafeMutableRawPointer(Unmanaged.passUnretained(anyBox).toOpaque())
     }
   }
 
   internal func destroySource(_ ptr: UnsafeMutableRawPointer) {
     lock.withLock {
-      if let exists = stored.remove(ptr) {
-        exists.deallocate()
-      }
+      let anyBox = Unmanaged<AnyBox>.fromOpaque(ptr).takeUnretainedValue()
+      _ = stored.remove(anyBox)
     }
   }
 
   internal func isExists(_ ptr: UnsafeMutableRawPointer) -> Bool {
     return lock.withLock {
-      return stored.contains(ptr)
+      let anyBox = Unmanaged<AnyBox>.fromOpaque(ptr).takeUnretainedValue()
+      return stored.contains(anyBox)
     }
   }
 
@@ -56,9 +75,13 @@ internal func withUnsafeBound<T, V>(
   ptr: UnsafeMutableRawPointer,
   _ mutate: (inout T) -> V
 ) -> V {
-  #if DEBUG
   precondition(ObjectManager.shared.isExists(ptr), "withUnsafeBound: pointer is not managed by ObjectManager")
-  #endif
-  let boundPtr = ptr.assumingMemoryBound(to: type)
-  return mutate(&boundPtr.pointee)
+  let anyBox = Unmanaged<AnyBox>.fromOpaque(ptr).takeUnretainedValue()
+  guard let containedValue: T = anyBox.get() else {
+    fatalError("withUnsafeBound: failed to cast to \(T.self)")
+  }
+  var value = containedValue
+  let result = mutate(&value)
+  anyBox.box = value
+  return result
 }
