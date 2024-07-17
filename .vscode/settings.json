@@ -115,7 +115,7 @@
     "xtree": "cpp",
     "xutility": "cpp"
   },
-  "lldb.library": "C:\\Toolchains\\Swift\\Toolchains\\5.10.0+Asserts\\usr\\bin\\liblldb.dll",
+  "lldb.library": "C:\\Toolchains\\Swift\\Toolchains\\6.0.0+Asserts\\usr\\bin\\liblldb.dll",
   "lldb.launch.expressions": "native",
   "search.useIgnoreFiles": false,
   "swift.sourcekit-lsp.serverArguments": [

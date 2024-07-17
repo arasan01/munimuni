@@ -6,7 +6,6 @@ public final class ObjectManager: @unchecked Sendable {
     return shared
   }
 
-  public var colorSourcePresets: ColorSourcePresets?
   private var stored: Set<UnsafeMutableRawPointer> = []
   private var lock = NSRecursiveLock()
 
@@ -17,17 +16,16 @@ public final class ObjectManager: @unchecked Sendable {
   }
 
   public func load() {
-    colorSourcePresets = ColorSourcePresets()
   }
 
   public func unload() {
-    colorSourcePresets = nil
   }
 
   internal func createSource<T>(_ source: T) -> UnsafeMutableRawPointer {
     return lock.withLock {
       let allocatePtr = UnsafeMutablePointer<T>.allocate(capacity: 1)
       allocatePtr.initialize(to: source)
+      printOBS(.INFO, allocatePtr.debugDescription)
       let rawPtr = UnsafeMutableRawPointer(allocatePtr)
       stored.insert(rawPtr)
       return rawPtr
@@ -42,8 +40,14 @@ public final class ObjectManager: @unchecked Sendable {
     }
   }
 
+  internal func isExists(_ ptr: UnsafeMutableRawPointer) -> Bool {
+    return lock.withLock {
+      return stored.contains(ptr)
+    }
+  }
+
   public func sourcePresetsRegister() {
-    colorSourcePresets?.register()
+    ColorSourcePresets.register()
   }
 }
 
@@ -53,6 +57,9 @@ internal func withUnsafeBound<T, V>(
   ptr: UnsafeMutableRawPointer,
   _ mutate: (inout T) -> V
 ) -> V {
-    let boundPtr = ptr.assumingMemoryBound(to: type)
-    return mutate(&boundPtr.pointee)
-  }
+  #if DEBUG
+  precondition(ObjectManager.shared.isExists(ptr), "withUnsafeBound: pointer is not managed by ObjectManager")
+  #endif
+  let boundPtr = ptr.assumingMemoryBound(to: type)
+  return mutate(&boundPtr.pointee)
+}

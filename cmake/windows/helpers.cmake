@@ -31,6 +31,12 @@ function(set_target_properties_plugin target)
     RUNTIME DESTINATION bin/64bit
     LIBRARY DESTINATION obs-plugins/64bit)
 
+  install(
+    FILES "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pdb"
+    CONFIGURATIONS Debug RelWithDebInfo
+    DESTINATION obs-plugins/64bit
+    OPTIONAL)
+
   if(OBS_BUILD_DIR)
     add_custom_command(
       TARGET ${target}

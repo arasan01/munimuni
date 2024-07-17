@@ -55,10 +55,11 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
   $<$<COMPILE_LANGUAGE:Swift>:-cxx-interoperability-mode=default>)
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
   $<$<COMPILE_LANGUAGE:Swift>:-swift-version 6>)
-target_compile_options(${CMAKE_PROJECT_NAME}
-  PRIVATE $<$<COMPILE_LANGUAGE:Swift>:-index-store-path ${CMAKE_BINARY_DIR}/IndexStore/index>
-)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:Swift>:-Xcc> $<$<COMPILE_LANGUAGE:Swift>:-std=c++17>)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+  $<$<COMPILE_LANGUAGE:Swift>:-index-store-path ${CMAKE_BINARY_DIR}/IndexStore/index>)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC
+  $<$<COMPILE_LANGUAGE:Swift>:-Xcc> $<$<COMPILE_LANGUAGE:Swift>:-std=c++17>)
+
 _swift_generate_cxx_header(${CMAKE_PROJECT_NAME}
   ${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}-swift.h
   SEARCH_PATHS "${PROJECT_BRIDGE_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.deps/include")

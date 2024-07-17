@@ -30,13 +30,10 @@ public struct ColorSource {
   public var src: OBSSourcePtr?
 }
 
-public final class ColorSourcePresets {
-  var sourceInfo: obs_source_info
-  let identifier: StaticString = "swift-color-source"
-
-  public init() {
-    sourceInfo = obs_source_info()
-    sourceInfo.id = identifier.obsString
+enum ColorSourcePresets {
+  static func makeColorSorucePresets() -> obs_source_info {
+    var sourceInfo = obs_source_info()
+    sourceInfo.id = "swift-color-source".obsString
     sourceInfo.version = 1
     sourceInfo.type = OBS_SOURCE_TYPE_INPUT
     sourceInfo.output_flags = UInt32(OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_SRGB)
@@ -50,6 +47,7 @@ public final class ColorSourcePresets {
     sourceInfo.destroy = Self.destroy()
     sourceInfo.update = Self.update()
     sourceInfo.video_render = Self.videoRender()
+    return sourceInfo
   }
 
   typealias CreateClosure = @convention(c) (OBSDataPtr?, OBSSourcePtr?) -> UnsafeMutableRawPointer?
@@ -164,11 +162,9 @@ public final class ColorSourcePresets {
     }
   }
 
-  func register() {
-    withUnsafePointer(to: &sourceInfo) {
-      obs_register_source_s($0,
-      MemoryLayout<obs_source_info>.size)
-    }
+  static func register() {
+    var sourceInfo = makeColorSorucePresets()
+    obs_register_source_s(&sourceInfo, MemoryLayout<obs_source_info>.size)
   }
 }
 

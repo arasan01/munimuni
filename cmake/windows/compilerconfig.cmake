@@ -37,11 +37,34 @@ add_compile_options(
   "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/MP>"
   "$<$<COMPILE_LANG_AND_ID:C,Clang>:${_obs_clang_c_options}>"
   "$<$<COMPILE_LANG_AND_ID:CXX,Clang>:${_obs_clang_cxx_options}>"
-  $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/Gy>)
+  $<$<AND:$<NOT:$<CONFIG:Debug,RelWithDebInfo>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/Gy>
+)
+
+# for WinDbg
+add_compile_options(
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:Swift>>:-g>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:Swift>>:-debug-info-format=codeview>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANG_AND_ID:C,Clang>>:-g>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANG_AND_ID:C,Clang>>:-gcodeview>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANG_AND_ID:CXX,Clang>>:-g>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANG_AND_ID:CXX,Clang>>:-gcodeview>
+)
+
+add_link_options(
+  "$<$<COMPILE_LANGUAGE:Swift>:-use-ld=lld>"
+)
+
+add_link_options(
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:Swift>>:-Xlinker>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:Swift>>:-debug>
+)
 
 set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DUNICODE -Xcc -D_UNICODE -Xcc -D_CRT_SECURE_NO_WARNINGS -Xcc -D_CRT_NONSTDC_NO_WARNINGS")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DDEBUG -Xcc -D_DEBUG")
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  set(CMAKE_Swift_FLAGS "${CMAKE_Swift_FLAGS} -Xcc -DNDEBUG")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS")
@@ -49,6 +72,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARN
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG -D_DEBUG")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG -D_DEBUG")
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNDEBUG")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG")
 endif()
 
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
@@ -60,7 +87,7 @@ add_link_options(
   $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:REF>
   $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/OPT:ICF>
   $<$<AND:$<NOT:$<CONFIG:Debug>>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/INCREMENTAL:NO>
-  $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/DEBUG>
+  $<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<NOT:$<COMPILE_LANGUAGE:Swift>>>:/DEBUG>
   $<$<NOT:$<COMPILE_LANGUAGE:Swift>>:/Brepro>
 )
 # cmake-format: on
